@@ -55,7 +55,9 @@ ifneq ($(DEBUG),)
 CDEF	+= -DDEBUG=1
 endif
 
+ifneq ($(DEBUG),)
 CDEBUG	= -g
+endif
 CWARN	= -Wall -Winline
 CSTD	= -std=gnu1x
 CXXSTD	= -std=gnu++11
