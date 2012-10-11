@@ -52,7 +52,7 @@ CINC	= -I$(ARDUINO_VARIANT) -I$(ARDUINO_CORE) -I$(INCDIR)
 CLIB    = -L$(LIBDIR)
 
 ifneq ($(DEBUG),)
-CDEF	+= -DDEBUG=1
+CDEF	+= -DDEBUG=1 -DDEBUGPORT=$(DEBUGPORT) -DDEBUGPIN=$(DEBUGPIN)
 endif
 
 ifneq ($(DEBUG),)
@@ -84,8 +84,11 @@ AVRISP		= avrdude -v -v -v -v
 SIMULATOR	= simulavr --verbose
 endif
 
-SIMWPIPE	= 0x20,-
-SIMRPIPE	= 0x22,-
+DEBUGPORT	= 0x20
+DEBUGPIN	= 0x22
+
+SIMWPIPE	= $(DEBUGPORT),-
+SIMRPIPE	= $(DEBUGPIN),-
 SIMARGS		= --device $(SIMMCU) \
 		--file $(TARGET) \
 		--cpufrequency $(F_CPU) \
