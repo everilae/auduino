@@ -69,7 +69,7 @@ public:
 	};
 
 	struct Handlers {
-		typedef void (*CallbackPtr)(_Midi::Message);
+		typedef void (*CallbackPtr)(_Midi::Message&);
 
 		CallbackPtr noteOff               = nullptr;
 		CallbackPtr noteOn                = nullptr;

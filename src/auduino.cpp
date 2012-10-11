@@ -142,7 +142,7 @@ void setup() {
   // setup midi
   Midi.begin();
   // set handlers
-  Midi.handlers.noteOn = [] (MidiMessage message) {
+  Midi.handlers.noteOn = [] (MidiMessage &message) {
     // no bounds checking, midi should not produce
     // note values higher than 127
     syncPhase.inc = midiTable[message.data[0]];
