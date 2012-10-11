@@ -2,7 +2,7 @@
 AVR_TOOLCHAIN	= /opt/cross/avr/lib64/gcc/avr/4.7.0
 ARDUINO_BASE	= /usr/share/arduino-1.0.1/hardware/arduino
 ARDUINO_CORE	= $(ARDUINO_BASE)/cores/arduino
-ARDUINO_VARIANT	= $(ARDUINO_BASE)/variants/eightanaloginputs
+ARDUINO_VARIANT	= $(ARDUINO_BASE)/variants/standard
 
 # Fix PATH for correct toolchain
 PATH	:= $(AVR_TOOLCHAIN)/bin:$(PATH)
