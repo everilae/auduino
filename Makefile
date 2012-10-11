@@ -99,6 +99,7 @@ ISPARGS		= -P $(ISPPORT) \
 		-F \
 		-e \
 		-U flash:w:
+ISP		= $(AVRISP) $(ISPARGS)$1
 
 vpath %.c	$(SRCDIR):$(ARDUINO_CORE)
 vpath %.cpp	$(SRCDIR):$(ARDUINO_CORE)
@@ -162,7 +163,7 @@ $(LIBDIR):
 .PHONY: upload
 
 upload: $(TARGET).hex
-	$(AVRISP) $(ISPARGS)$<
+	$(call ISP,$<)
 
 .PHONY: install
 
