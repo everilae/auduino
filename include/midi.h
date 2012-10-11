@@ -12,9 +12,7 @@ class _Midi {
 	uint8_t dataBuffer[dataBufferSize];
 	size_t dataBufferPosition;
 
-	void eventHandler(uint8_t data);
 	void messageHandler(uint8_t status);
-	friend void serialEvent();
 
 	struct Messages {
 		enum ChannelVoice {
@@ -109,6 +107,7 @@ public:
 	 * Begin receiving MIDI. Channel 0 means omni mode.
 	 */
 	void begin(int8_t channel = 0);
+	void eventHandler(uint8_t data);
 
 private:
 	Handlers::CallbackPtr getControlChangeHandler();
