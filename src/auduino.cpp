@@ -135,19 +135,18 @@ void audioOn() {
 }
 
 
-void noteOn(MidiMessage message) {
-	// no bounds checking, midi should not produce
-	// note values higher than 127
-	syncPhase.inc = midiTable[message.data[0]];
-}
-
 void setup() {
   pinMode(PWM_PIN,OUTPUT);
   audioOn();
   pinMode(LED_PIN,OUTPUT);
   // setup midi
   Midi.begin();
-  Midi.handlers.noteOn = noteOn;
+  // set handlers
+  Midi.handlers.noteOn = [] (MidiMessage message) {
+    // no bounds checking, midi should not produce
+    // note values higher than 127
+    syncPhase.inc = midiTable[message.data[0]];
+  };
 }
 
 void loop() {
