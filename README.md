@@ -23,11 +23,38 @@ cd auduino
 make
 ```
 
+Until autotools is up and running you have to set some variables in the Makefile to get things working:
+
+```
+# Base directories for Arduino
+AVR_TOOLCHAIN	= /opt/cross/avr/lib64/gcc/avr/4.7.0
+ARDUINO_BASE	= /usr/share/arduino-1.0.1/hardware/arduino
+ARDUINO_CORE	= $(ARDUINO_BASE)/cores/arduino
+ARDUINO_VARIANT	= $(ARDUINO_BASE)/variants/standard
+
+# Fix PATH for correct toolchain
+PATH	:= $(AVR_TOOLCHAIN)/bin:$(PATH)
+```
+
+Also set MCU variables (or provide them at the command line):
+
+```
+MCU	= atmega328p
+SIMMCU	= atmega328
+ISPMCU	= m328p
+```
+
+If your processor frequency differs from 16MHz, set it with:
+
+```
+F_CPU	= 16000000L
+```
+
 Building with debugging
 -----------------------
 
 ```
-env DEBUG=1 make
+make DEBUG=1
 ```
 
 Uploading to device
