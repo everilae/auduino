@@ -70,9 +70,6 @@ _Midi::Handlers::CallbackPtr _Midi::getControlChangeHandler() {
 	if (databuffer[0] < 120) {
 #endif
 			handler = handlers.controlChange;
-#if MIDI_CHANNEL_MODE
-			break;
-#endif
 	}
 
 	return handler;
