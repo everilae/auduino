@@ -8,6 +8,11 @@ Auduino, the Lo-Fi granular synthesiser by Peter Knight, Tinker.it http://tinker
 
 Midi additions and C++ support by Ilja Everilä <saarni@gmail.com>.
 
+Todo
+----
+
+Add autoconf or some such method for setting up Makefile variables.
+
 Quick start
 -----------
 
