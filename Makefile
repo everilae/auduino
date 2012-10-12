@@ -63,8 +63,9 @@ CSTD	= -std=gnu1x
 CXXSTD	= -std=gnu++11
 COPTS	= -Os -ffunction-sections -fdata-sections
 
-CFLAGS		= $(CDEBUG) $(CWARN) $(CSTD)   $(COPTS) -pedantic -mmcu=$(MCU) $(CDEF) $(CINC)
-CXXFLAGS	= $(CDEBUG) $(CWARN) $(CXXSTD) $(COPTS) -pedantic -mmcu=$(MCU) $(CDEF) $(CINC) \
+CPPFLAGS	= $(CDEF) $(CINC)
+CFLAGS		= $(CDEBUG) $(CWARN) $(CSTD)   $(COPTS) -pedantic -mmcu=$(MCU)
+CXXFLAGS	= $(CDEBUG) $(CWARN) $(CXXSTD) $(COPTS) -pedantic -mmcu=$(MCU) \
 		  -fno-exceptions -felide-constructors
 LDFLAGS		= $(CDEBUG) $(CWARN) -Wl,--gc-sections -mmcu=$(MCU) $(CLIB)
 LIBRARIES	= -lm
