@@ -15,9 +15,8 @@ char _Adb::read() {
 }
 
 static void _write_cstring(const char *s) {
-	char c;
-	while ((c = *s++) != '\0') {
-		*_port = c;
+	while ((*_port = *s++) != '\0') {
+		/* nothing */;
 	}
 }
 
@@ -25,8 +24,10 @@ void _Adb::write(const char *s) {
 	_write_cstring(s);
 }
 
+//-------------------------------------------------------------//
 static char buf[sizeof(unsigned long int) * 8 + 2];
-
+// Will cause DEATH AND DESTRUCTION if called from an interrupt
+// while a call has been ongoing in normal execution
 inline static void _write_uint(unsigned int i, int radix) {
 	utoa(i, buf, radix);
 	_write_cstring(buf);
@@ -36,6 +37,7 @@ inline static void _write_int(int i, int radix) {
 	itoa(i, buf, radix);
 	_write_cstring(buf);
 }
+//-------------------------------------------------------------//
 
 void _Adb::write(int i, int radix) {
 	_write_int(i, radix);
