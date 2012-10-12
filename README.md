@@ -50,8 +50,31 @@ If your processor frequency differs from 16MHz, set it with:
 F_CPU	= 16000000L
 ```
 
+Running simulator
+-----------------
+
+```
+make simulate
+```
+
+or as gdbserver
+
+```
+make gdbserver &
+avr-gdb
+(gdb) target remote localhost:1212
+(gdb) file auduino
+A program is being debugged already.
+Are you sure you want to change the file? (y or n) y
+Reading symbols from /home/user/workspace/arduino/auduino/auduino...done.
+(gdb) load
+(gdb) continue
+```
+
 Building with debugging
 -----------------------
+
+Debug build is useful with simulators and has some helper code for writing messages to stdout and reading from stdin.
 
 ```
 make DEBUG=1
