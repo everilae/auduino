@@ -1,3 +1,10 @@
+// Auduino Grain oscillator
+//
+// by Peter Knight, Tinker.it http://tinker.it,
+//    Ilja Everilä <saarni@gmail.com>
+//
+// ChangeLog:
+
 inline void Env::tick() {
   // Make the grain amplitude decay by a factor every sample (exponential decay)
   amp -= (amp >> 8) * decay;

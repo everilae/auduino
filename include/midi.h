@@ -1,7 +1,30 @@
+// Auduino Midi, a simple client implementation
+//
+// by Ilja Everilä <saarni@gmail.com>
+//
+// ChangeLog:
+// 12 Oct 2012: System Common and Real time made optional
+
 #ifndef __MIDI_H__
 #define __MIDI_H__
 
 #include <stdint.h>
+
+#ifndef MIDI_SYSTEM_COMMON
+# define MIDI_SYSTEM_COMMON 1
+#endif
+
+#ifndef MIDI_SYSTEM_REAL_TIME
+# define MIDI_SYSTEM_REAL_TIME 1
+#endif
+
+#ifndef MIDI_CHANNEL_MODE
+# define MIDI_CHANNEL_MODE 1
+#endif
+
+#ifndef MIDI_HOOK_SERIAL_EVENT
+# define MIDI_HOOK_SERIAL_EVENT 1
+#endif
 
 class _Midi {
 	static const unsigned int baudRate = 31250;
@@ -24,7 +47,7 @@ class _Midi {
 			ChannelPressure       = 0xD0,
 			PitchWheelChange      = 0xE0,
 		};
-
+#if MIDI_CHANNEL_MODE
 		enum ChannelMode {
 			AllSoundOff         = 0x78,
 			ResetAllControllers = 0x79,
@@ -35,7 +58,8 @@ class _Midi {
 			MonoModeOn          = 0x7E,
 			PolyModeOn          = 0x7F,
 		};
-
+#endif
+#if MIDI_SYSTEM_COMMON
 		enum SystemCommon {
 			SystemExclusive      = 0xF0,
 			TimeCodeQuarterFrame = 0xF1,
@@ -46,7 +70,8 @@ class _Midi {
 			TuneRequest          = 0xF6,
 			EndOfExclusive       = 0xF7,
 		};
-
+#endif
+#if MIDI_SYSTEM_REAL_TIME
 		enum SystemRealTime {
 			TimingClock   = 0xF8,
 			// Undefined  = 0xF9,
@@ -57,6 +82,7 @@ class _Midi {
 			ActiveSensing = 0xFE,
 			Reset         = 0xFF,
 		};
+#endif
 	};
 
 public:
@@ -78,7 +104,7 @@ public:
 		CallbackPtr programChange         = nullptr;
 		CallbackPtr channelPressure       = nullptr;
 		CallbackPtr pitchWheelChange      = nullptr;
-
+#if MIDI_CHANNEL_MODE
 		CallbackPtr allSoundOff           = nullptr;
 		CallbackPtr resetAllControllers   = nullptr;
 		CallbackPtr localControl          = nullptr;
@@ -87,20 +113,23 @@ public:
 		CallbackPtr omniModeOn            = nullptr;
 		CallbackPtr monoModeOn            = nullptr;
 		CallbackPtr polyModeOn            = nullptr;
-
+#endif
+#if MIDI_SYSTEM_COMMON
 		CallbackPtr systemExclusive       = nullptr;
 		CallbackPtr timeCodeQuarterFrame  = nullptr;
 		CallbackPtr songPositionPointer   = nullptr;
 		CallbackPtr songSelect            = nullptr;
 		CallbackPtr tuneRequest           = nullptr;
 		CallbackPtr endOfExclusive        = nullptr;
-
+#endif
+#if MIDI_SYSTEM_REAL_TIME
 		CallbackPtr timingClock           = nullptr;
 		CallbackPtr start                 = nullptr;
 		CallbackPtr continue_             = nullptr;
 		CallbackPtr stop                  = nullptr;
 		CallbackPtr activeSensing         = nullptr;
 		CallbackPtr reset                 = nullptr;
+#endif
 	} handlers;
 
 	/**
@@ -115,11 +144,6 @@ private:
 
 // easier to remember and write
 typedef _Midi::Message MidiMessage;
-
-#ifndef MIDI_HOOK_SERIAL_EVENT
-# define MIDI_HOOK_SERIAL_EVENT 1
-#endif
-
 extern _Midi Midi;
 
 #endif

@@ -1,3 +1,9 @@
+// Arduino+simulavr debug library
+//
+// by Ilja Everilä <saarni@gmail.com>
+//
+// ChangeLog:
+
 #ifndef __DEBUG_H__
 #define __DEBUG_H__ 1
 

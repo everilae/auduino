@@ -1,3 +1,10 @@
+// Auduino Phase accumulator
+//
+// by Peter Knight, Tinker.it http://tinker.it,
+//    Ilja Everilä <saarni@gmail.com>
+//
+// ChangeLog:
+
 inline Phase& Phase::operator++() {
   // Increment the phase
   acc += inc;

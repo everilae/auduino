@@ -1,3 +1,10 @@
+// Auduino Grain oscillator
+//
+// by Peter Knight, Tinker.it http://tinker.it,
+//    Ilja Everilä <saarni@gmail.com>
+//
+// ChangeLog:
+
 #ifndef __GRAIN_H__
 #define __GRAIN_H__ 1
 

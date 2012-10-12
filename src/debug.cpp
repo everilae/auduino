@@ -1,3 +1,9 @@
+// Arduino+simulavr debug library
+//
+// by Ilja Everilä <saarni@gmail.com>
+//
+// ChangeLog:
+
 #include <stdlib.h>
 #include "debug.h"
 

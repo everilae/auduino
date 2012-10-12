@@ -16,8 +16,9 @@
 // Changelog:
 // 19 Nov 2008: Added support for ATmega8 boards
 // 21 Mar 2009: Added support for ATmega328 boards
-// 7 Apr 2009: Fixed interrupt vector for ATmega328 boards
-// 8 Apr 2009: Added support for ATmega1280 boards (Arduino Mega)
+// 7  Apr 2009: Fixed interrupt vector for ATmega328 boards
+// 8  Apr 2009: Added support for ATmega1280 boards (Arduino Mega)
+// 12 Oct 2012: Made source more C++11 friendly, added initial Midi
 
 #include <Arduino.h>
 #include <avr/io.h>

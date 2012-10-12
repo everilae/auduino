@@ -1,3 +1,10 @@
+// Auduino Phase accumulator
+//
+// by Peter Knight, Tinker.it http://tinker.it,
+//    Ilja Everilä <saarni@gmail.com>
+//
+// ChangeLog:
+
 #ifndef __PHASE_H__
 #define __PHASE_H__ 1
 

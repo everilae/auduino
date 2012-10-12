@@ -1,3 +1,10 @@
+// Auduino Midi, a simple client implementation
+//
+// by Ilja Everilä <saarni@gmail.com>
+//
+// ChangeLog:
+// 12 Oct 2012: System Common and Real time made optional
+
 #include <Arduino.h>
 #include "midi.h"
 #include "debug.h"
@@ -19,8 +26,8 @@ void serialEvent() {
 		Midi.eventHandler(serial.read());
 	}
 }
-//---------------------------------------------------------//
 #endif
+//---------------------------------------------------------//
 
 inline constexpr uint8_t denseIndexFromStatus(uint8_t status) {
 	return status < 0xF0
@@ -47,7 +54,8 @@ void _Midi::begin(int8_t channel_) {
 
 _Midi::Handlers::CallbackPtr _Midi::getControlChangeHandler() {
 	Handlers::CallbackPtr handler = nullptr;
-
+	// first data byte has controller number
+#if MIDI_CHANNEL_MODE
 	switch (dataBuffer[0]) {
 		case Messages::ChannelMode::AllSoundOff:         handler = handlers.allSoundOff;         break;
 		case Messages::ChannelMode::ResetAllControllers: handler = handlers.resetAllControllers; break;
@@ -57,7 +65,14 @@ _Midi::Handlers::CallbackPtr _Midi::getControlChangeHandler() {
 		case Messages::ChannelMode::OmniModeOn:          handler = handlers.omniModeOn;          break;
 		case Messages::ChannelMode::MonoModeOn:          handler = handlers.monoModeOn;          break;
 		case Messages::ChannelMode::PolyModeOn:          handler = handlers.polyModeOn;          break;
-		default:                                         handler = handlers.controlChange;       break;
+		default:
+#else
+	if (databuffer[0] < 120) {
+#endif
+			handler = handlers.controlChange;
+#if MIDI_CHANNEL_MODE
+			break;
+#endif
 	}
 
 	return handler;
@@ -82,7 +97,9 @@ void _Midi::messageHandler(uint8_t status) {
 		case denseIndexFromStatus(Messages::ChannelVoice::ProgramChange):         handler = handlers.programChange;         break;
 		case denseIndexFromStatus(Messages::ChannelVoice::ChannelPressure):       handler = handlers.channelPressure;       break;
 		case denseIndexFromStatus(Messages::ChannelVoice::PitchWheelChange):      handler = handlers.pitchWheelChange;      break;
-
+#if MIDI_SYSTEM_COMMON
+// NOTE: disabling System Common, but enabling SystemRealTime will
+// make this switch/case sparse, could cause crappier compiler results?
 		case denseIndexFromStatus(Messages::SystemCommon::SystemExclusive):       handler = handlers.systemExclusive;      break;
 		case denseIndexFromStatus(Messages::SystemCommon::TimeCodeQuarterFrame):  handler = handlers.timeCodeQuarterFrame; break;
 		case denseIndexFromStatus(Messages::SystemCommon::SongPositionPointer):   handler = handlers.songPositionPointer;  break;
@@ -91,7 +108,8 @@ void _Midi::messageHandler(uint8_t status) {
 		case denseIndexFromStatus(0xF5): /* Undefined */ break;
 		case denseIndexFromStatus(Messages::SystemCommon::TuneRequest):           handler = handlers.tuneRequest;    break;
 		case denseIndexFromStatus(Messages::SystemCommon::EndOfExclusive):        handler = handlers.endOfExclusive; break;
-
+#endif
+#if MIDI_SYSTEM_REAL_TIME
 		case denseIndexFromStatus(Messages::SystemRealTime::TimingClock):         handler = handlers.timingClock; break;
 		case denseIndexFromStatus(0xF9): /* Undefined */ break;
 		case denseIndexFromStatus(Messages::SystemRealTime::Start):               handler = handlers.start;     break;
@@ -100,6 +118,7 @@ void _Midi::messageHandler(uint8_t status) {
 		case denseIndexFromStatus(0xFD): /* Undefined */ break;
 		case denseIndexFromStatus(Messages::SystemRealTime::ActiveSensing):       handler = handlers.activeSensing; break;
 		case denseIndexFromStatus(Messages::SystemRealTime::Reset):               handler = handlers.reset;         break;
+#endif
 	}
 
 	if (handler) {
