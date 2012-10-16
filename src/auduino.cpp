@@ -30,6 +30,8 @@
 
 Phase syncPhase;
 Grain grains[2];
+uint8_t velocity;
+uint8_t currentNote;
 
 // Map Analogue channels
 #define SYNC_CONTROL         (4)
@@ -146,7 +148,15 @@ void setup() {
   Midi.handlers.noteOn = [] (MidiMessage &message) {
     // no bounds checking, midi should not produce
     // note values higher than 127
-    syncPhase.inc = midiTable[message.data[0]];
+    currentNote = message.data[0];
+    syncPhase.inc = midiTable[currentNote];
+    velocity = 7 - (message.data[1] >> 4);
+  };
+  Midi.handlers.noteOff = [] (MidiMessage &message) {
+    if (currentNote == message.data[0]) {
+      // shifts output to 0
+      velocity = 8;
+    }
   };
 }
 
@@ -198,6 +208,6 @@ ISR(PWM_INTERRUPT)
   output >>= 9;
   if (output > 255) output = 255;
 
-  // Output to PWM (this is faster than using analogWrite)  
-  PWM_VALUE = output;
+  // Output to PWM (this is faster than using analogWrite)
+  PWM_VALUE = output >> velocity;
 }
