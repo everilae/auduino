@@ -157,7 +157,7 @@ void setup() {
       // shifts output to 0
       velocity = 8;
     }
-  }
+  };
 }
 
 void loop() {
