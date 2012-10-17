@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Raw byte reader and printer.
 #
 # by Ilja Everilä <saarni@gmail.com>
