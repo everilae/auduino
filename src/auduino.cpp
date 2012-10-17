@@ -204,9 +204,8 @@ ISR(PWM_INTERRUPT)
   grains[0].env.tick();
   grains[1].env.tick();
 
-  // Scale output to the available range, clipping if necessary
-  output >>= 9;
-  if (output > 255) output = 255;
+  // Scale output to the available range
+  output >>= 8;
 
   // Output to PWM (this is faster than using analogWrite)
   PWM_VALUE = output >> velocity;
