@@ -149,13 +149,12 @@ void setup() {
     // no bounds checking, midi should not produce
     // note values higher than 127
     currentNote = message.data[0];
+    velocity = message.data[1];
     syncPhase.inc = midiTable[currentNote];
-    velocity = 7 - (message.data[1] >> 4);
   };
   Midi.handlers.noteOff = [] (MidiMessage &message) {
     if (currentNote == message.data[0]) {
-      // shifts output to 0
-      velocity = 8;
+      velocity = 0;
     }
   };
 }
@@ -183,8 +182,6 @@ void loop() {
 
 ISR(PWM_INTERRUPT)
 {
-  uint16_t output;
-
   ++syncPhase;
   if (syncPhase.hasOverflowed()) {
     // Time to start the next grain
@@ -197,14 +194,22 @@ ISR(PWM_INTERRUPT)
   ++grains[0].phase;
   ++grains[1].phase;
 
-  output =  grains[0].getSample();
-  output += grains[1].getSample();
+  // Scale output to the available range
+  if (velocity) {
+    uint16_t output;
+    output =   grains[0].getSample();
+    output +=  grains[1].getSample();
+    output >>= 8;
+    // Output to PWM (this is faster than using analogWrite)
+    // 2 * 127 * 255 + 2 * 255 = 65280, well within unsigned 16bit limits
+    // This is ~ the same as
+    // value = output * (velocity + 1) / (127 + 1)
+    PWM_VALUE = ((velocity * output << 1) + (output << 1)) >> 8;
+  } else {
+    PWM_VALUE = 0;
+  }
 
   // Make the grain amplitudes decay by a factor every sample (exponential decay)
   grains[0].env.tick();
   grains[1].env.tick();
-
-  // Scale output to the available range
-  // Output to PWM (this is faster than using analogWrite)
-  PWM_VALUE = (output >> 8) >> velocity;
 }

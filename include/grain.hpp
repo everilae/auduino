@@ -28,5 +28,5 @@ inline uint16_t Grain::getSample() const {
   uint8_t value = phase.acc >> 7;
   if (phase.acc & 0x8000) value = ~value;
   // Multiply by current grain amplitude to get sample
-  return static_cast<uint_fast16_t>(value * env.value());
+  return value * env.value();
 }
