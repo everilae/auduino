@@ -205,8 +205,6 @@ ISR(PWM_INTERRUPT)
   grains[1].env.tick();
 
   // Scale output to the available range
-  output >>= 8;
-
   // Output to PWM (this is faster than using analogWrite)
-  PWM_VALUE = output >> velocity;
+  PWM_VALUE = (output >> 8) >> velocity;
 }
