@@ -4,10 +4,27 @@
 //    Ilja Everilä <saarni@gmail.com>
 //
 // ChangeLog:
+// 18 Oct 2012: Attempt at optimizing 8bit multiplications
+
+#if __AVR_HAVE_MUL__ && __AVR_HAVE_MOVW__
+inline uint16_t mul(const uint8_t a, const uint8_t b) {
+	unsigned int product;
+	asm(	"mul %1, %2\n\t"
+		"movw %0, __tmp_reg__\n\t"
+		"clr __zero_reg__\n\t"
+		: "=&r" (product)    // Force different register with '&'
+		: "r" (a), "r" (b)); // so that a and b stay safe
+	return product;
+}
+#else
+constexpr uint16_t mul(const uint8_t a, const uint8_t b) {
+	return a * b;
+}
+#endif
 
 inline void Env::tick() {
   // Make the grain amplitude decay by a factor every sample (exponential decay)
-  amp -= (amp >> 8) * decay;
+  amp -= mul(value(), decay);
 }
 
 inline uint8_t Env::value() const {
@@ -28,5 +45,5 @@ inline uint16_t Grain::getSample() const {
   uint8_t value = phase.acc >> 7;
   if (phase.acc & 0x8000) value = ~value;
   // Multiply by current grain amplitude to get sample
-  return value * env.value();
+  return mul(value, env.value());
 }

@@ -202,8 +202,10 @@ ISR(PWM_INTERRUPT)
     output >>= 8;
     // Output to PWM (this is faster than using analogWrite)
     // 2 * 127 * 255 + 2 * 255 = 65280, well within unsigned 16bit limits
-    // This is ~ the same as
     // value = output * (velocity + 1) / (127 + 1)
+    //       = output * (velocity + 1) * 2 / ((127 + 1) * 2)
+    //       = output * (2 * velocity + 2) / 256
+    //       = (2 * velocity * output + 2 * output) / 256
     PWM_VALUE = ((velocity * output << 1) + (output << 1)) >> 8;
   } else {
     PWM_VALUE = 0;
