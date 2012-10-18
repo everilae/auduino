@@ -8,7 +8,7 @@
 
 #if __AVR_HAVE_MUL__ && __AVR_HAVE_MOVW__
 inline uint16_t mul(const uint8_t a, const uint8_t b) {
-	unsigned int product;
+	uint16_t product;
 	asm(	"mul %1, %2\n\t"
 		"movw %0, __tmp_reg__\n\t"
 		"clr __zero_reg__\n\t"
