@@ -1,13 +1,12 @@
 AC_PREREQ([2.68])
-AC_INIT([arduino], [1.0], [saarni@gmail.com])
+AC_INIT([auduino], [1.0], [saarni@gmail.com])
 AC_CONFIG_SRCDIR([src/auduino.cpp])
 
 # Checks for programs.
-AC_PROG_CC([avr-gcc])
-AC_PROG_CXX([avr-g++])
+AC_PROG_CC([gcc])
+AC_PROG_CXX([g++])
 
 # Checks for libraries.
-AC_CHECK_LIB([core], [main])
 AC_CHECK_LIB([m], [pow])
 
 # Checks for header files.
