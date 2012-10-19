@@ -30,8 +30,17 @@
 
 Phase syncPhase;
 Grain grains[2];
-uint8_t velocity;
-uint8_t currentNote;
+
+struct Note {
+  enum Gate {
+    CLOSED,
+    OPEN,
+  } gate;
+  uint8_t number;
+  uint8_t velocity;
+};
+
+Note currentNote;
 
 // Map Analogue channels
 #define SYNC_CONTROL         (4)
@@ -148,13 +157,14 @@ void setup() {
   Midi.handlers.noteOn = [] (MidiMessage &message) {
     // no bounds checking, midi should not produce
     // note values higher than 127
-    currentNote = message.data[0];
-    velocity = message.data[1];
-    syncPhase.inc = midiTable[currentNote];
+    currentNote.number = message.data[0];
+    currentNote.velocity = message.data[1];
+    currentNote.gate = Note::OPEN;
+    syncPhase.inc = midiTable[currentNote.number];
   };
   Midi.handlers.noteOff = [] (MidiMessage &message) {
-    if (currentNote == message.data[0]) {
-      velocity = 0;
+    if (currentNote.number == message.data[0]) {
+      currentNote.gate = Note::CLOSED;
     }
   };
 }
@@ -195,7 +205,7 @@ ISR(PWM_INTERRUPT)
   ++grains[1].phase;
 
   // Scale output to the available range
-  if (velocity) {
+  if (currentNote.gate == Note::OPEN) {
     uint16_t output;
     output =   grains[0].getSample();
     output +=  grains[1].getSample();
