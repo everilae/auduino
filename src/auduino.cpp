@@ -218,7 +218,7 @@ ISR(PWM_INTERRUPT)
     //       = (2 * velocity * output + 2 * output) / 256
     //
     // mul() from grain.h, grain.hpp
-    PWM_VALUE = ((mul(velocity, output) << 1) + (output << 1)) >> 8;
+    PWM_VALUE = ((mul(currentNote.velocity, output) << 1) + (output << 1)) >> 8;
   } else {
     PWM_VALUE = 0;
   }
