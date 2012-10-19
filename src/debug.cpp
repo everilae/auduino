@@ -3,60 +3,30 @@
 // by Ilja Everilä <saarni@gmail.com>
 //
 // ChangeLog:
+// 19 Oct 2012: Use AVR stdio stream methods
 
-#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
 #include "debug.h"
 
 static volatile uint8_t *_port = reinterpret_cast<volatile uint8_t *>(DEBUGPORT);
 static volatile uint8_t *_pin  = reinterpret_cast<volatile uint8_t *>(DEBUGPIN);
 
-char _Adb::read() {
+static int simulavr_fputc(const char c, FILE *stream) {
+	*_port = c;
+	return 0;
+}
+
+static int simulavr_fgetc(FILE *stream) {
 	return *_pin;
 }
 
-static void _write_cstring(const char *s) {
-	while ((*_port = *s++) != '\0') {
-		/* nothing */;
-	}
-}
+static FILE _stderr;
 
-void _Adb::write(const char *s) {
-	_write_cstring(s);
+void setup_debug() {
+	fdev_setup_stream(&_stderr,
+		simulavr_fputc,
+		simulavr_fgetc,
+		_FDEV_SETUP_WRITE | _FDEV_SETUP_READ);
+	stderr = &_stderr;
 }
-
-//-------------------------------------------------------------//
-static char buf[sizeof(unsigned long int) * 8 + 2];
-// Will cause DEATH AND DESTRUCTION if called from an interrupt
-// while a call has been ongoing in normal execution
-inline static void _write_uint(unsigned int i, int radix) {
-	utoa(i, buf, radix);
-	_write_cstring(buf);
-}
-
-inline static void _write_int(int i, int radix) {
-	itoa(i, buf, radix);
-	_write_cstring(buf);
-}
-//-------------------------------------------------------------//
-
-void _Adb::write(int i, int radix) {
-	_write_int(i, radix);
-}
-
-void _Adb::write(uint8_t i, int radix) {
-	_write_uint(i, radix);
-}
-
-void _Adb::write(uint16_t i, int radix) {
-	_write_uint(i, radix);
-}
-
-void _Adb::write(int8_t i, int radix) {
-	_write_int(i, radix);
-}
-
-void _Adb::write(const char &c) {
-	*_port = c;
-}
-
-_Adb Adb;

@@ -42,10 +42,7 @@ inline constexpr uint8_t channelFromStatus(uint8_t status) {
 }
 
 void _Midi::begin(int8_t channel_) {
-	DEBUG_WRITE("_Midi::begin(channel = ");
-	DEBUG_WRITE(channel_);
-	DEBUG_WRITE(")\n");
-
+	DEBUG_WRITE("_Midi::begin(channel = %d)\n", channel_);
 	serial.begin(baudRate);
 	channel = channel_;
 	dataBufferPosition = 0;

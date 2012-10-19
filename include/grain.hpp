@@ -7,7 +7,7 @@
 // 18 Oct 2012: Attempt at optimizing 8bit multiplications
 
 #if __AVR_HAVE_MUL__ && __AVR_HAVE_MOVW__
-inline uint16_t mul(const uint8_t a, const uint8_t b) {
+static inline uint16_t mul(const uint8_t a, const uint8_t b) {
 	uint16_t product;
 	asm(	"mul %1, %2\n\t"
 		"movw %0, __tmp_reg__\n\t"
@@ -28,7 +28,7 @@ inline void Env::tick() {
 }
 
 inline uint8_t Env::value() const {
-  return amp >> 8;
+  return static_cast<uint8_t>(amp >> 8);
 }
 
 inline void Env::reset() {

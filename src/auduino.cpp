@@ -148,6 +148,7 @@ void audioOn() {
 
 
 void setup() {
+  SETUP_DEBUG;
   pinMode(PWM_PIN,OUTPUT);
   audioOn();
   pinMode(LED_PIN,OUTPUT);
