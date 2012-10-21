@@ -61,7 +61,7 @@ endif
 CWARN	= -Wall -Winline
 CSTD	= -std=gnu1x
 CXXSTD	= -std=gnu++11
-COPTS	= -O3 -ffunction-sections -fdata-sections
+COPTS	= -O3 -ffunction-sections -fdata-sections -fshort-enums
 
 CPPFLAGS	= $(CDEF) $(CINC)
 CFLAGS		= $(CDEBUG) $(CWARN) $(CSTD)   $(COPTS) -pedantic -mmcu=$(MCU)

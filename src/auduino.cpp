@@ -23,6 +23,7 @@
 #include <Arduino.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 #include "phase.h"
 #include "grain.h"
 #include "midi.h"
@@ -89,19 +90,19 @@ Note currentNote;
 
 // Smooth logarithmic mapping
 //
-uint16_t antilogTable[] = {
+static const uint16_t antilogTable[64] PROGMEM = {
   64830,64132,63441,62757,62081,61413,60751,60097,59449,58809,58176,57549,56929,56316,55709,55109,
   54515,53928,53347,52773,52204,51642,51085,50535,49991,49452,48920,48393,47871,47356,46846,46341,
   45842,45348,44859,44376,43898,43425,42958,42495,42037,41584,41136,40693,40255,39821,39392,38968,
   38548,38133,37722,37316,36914,36516,36123,35734,35349,34968,34591,34219,33850,33486,33125,32768
 };
 uint16_t mapPhaseInc(uint16_t input) {
-  return (antilogTable[input & 0x3f]) >> (input >> 6);
+  return (pgm_read_word(&antilogTable[input & 0x3f])) >> (input >> 6);
 }
 
 // Stepped chromatic mapping
 //
-uint16_t midiTable[] = {
+static const uint16_t midiTable[128] PROGMEM = {
   17,18,19,20,22,23,24,26,27,29,31,32,34,36,38,41,43,46,48,51,54,58,61,65,69,73,
   77,82,86,92,97,103,109,115,122,129,137,145,154,163,173,183,194,206,218,231,
   244,259,274,291,308,326,346,366,388,411,435,461,489,518,549,581,616,652,691,
@@ -112,12 +113,12 @@ uint16_t midiTable[] = {
   22121,23436,24830,26306
 };
 uint16_t mapMidi(uint16_t input) {
-  return (midiTable[(1023-input) >> 3]);
+  return pgm_read_word(&midiTable[(1023-input) >> 3]);
 }
 
 // Stepped Pentatonic mapping
 //
-uint16_t pentatonicTable[54] = {
+static const uint16_t pentatonicTable[54] PROGMEM = {
   0,19,22,26,29,32,38,43,51,58,65,77,86,103,115,129,154,173,206,231,259,308,346,
   411,461,518,616,691,822,923,1036,1232,1383,1644,1845,2071,2463,2765,3288,
   3691,4143,4927,5530,6577,7382,8286,9854,11060,13153,14764,16572,19708,22121,26306
@@ -125,7 +126,7 @@ uint16_t pentatonicTable[54] = {
 
 uint16_t mapPentatonic(uint16_t input) {
   uint8_t value = (1023-input) / (1024/53);
-  return (pentatonicTable[value]);
+  return pgm_read_word(&pentatonicTable[value]);
 }
 
 
@@ -161,7 +162,7 @@ void setup() {
     currentNote.number = message.data[0];
     currentNote.velocity = message.data[1];
     currentNote.gate = Note::OPEN;
-    syncPhase.inc = midiTable[currentNote.number];
+    syncPhase.inc = pgm_read_word(&midiTable[currentNote.number]);
   };
   Midi.handlers.noteOff = [] (MidiMessage &message) {
     if (currentNote.number == message.data[0]) {
