@@ -16,7 +16,7 @@ extern "C" {
 
 	static int simulavr_fputc(const char c, FILE *stream) {
 		*_port = c;
-		return 0;
+		return c;
 	}
 
 	static int simulavr_fgetc(FILE *stream) {
