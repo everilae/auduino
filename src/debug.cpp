@@ -12,13 +12,17 @@
 static volatile uint8_t *_port = reinterpret_cast<volatile uint8_t *>(DEBUGPORT);
 static volatile uint8_t *_pin  = reinterpret_cast<volatile uint8_t *>(DEBUGPIN);
 
-static int simulavr_fputc(const char c, FILE *stream) {
-	*_port = c;
-	return 0;
-}
+extern "C" {
 
-static int simulavr_fgetc(FILE *stream) {
-	return *_pin;
+	static int simulavr_fputc(const char c, FILE *stream) {
+		*_port = c;
+		return 0;
+	}
+
+	static int simulavr_fgetc(FILE *stream) {
+		return *_pin;
+	}
+
 }
 
 static FILE _stderr;
