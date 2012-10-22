@@ -29,19 +29,16 @@
 #include "midi.h"
 #include "debug.h"
 
-Phase syncPhase;
-Grain grains[2];
-
-struct Note {
+static Phase syncPhase;
+static Grain grains[2];
+static struct Note {
   enum Gate {
     CLOSED,
     OPEN,
   } gate;
   uint8_t number;
   uint8_t velocity;
-};
-
-Note currentNote;
+} currentNote;
 
 // Map Analogue channels
 #define SYNC_CONTROL         (4)
@@ -96,7 +93,8 @@ static const uint16_t antilogTable[64] PROGMEM = {
   45842,45348,44859,44376,43898,43425,42958,42495,42037,41584,41136,40693,40255,39821,39392,38968,
   38548,38133,37722,37316,36914,36516,36123,35734,35349,34968,34591,34219,33850,33486,33125,32768
 };
-uint16_t mapPhaseInc(uint16_t input) {
+
+static uint16_t mapPhaseInc(uint16_t input) {
   return (pgm_read_word(&antilogTable[input & 0x3f])) >> (input >> 6);
 }
 
@@ -112,7 +110,8 @@ static const uint16_t midiTable[128] PROGMEM = {
   10440,11060,11718,12415,13153,13935,14764,15642,16572,17557,18601,19708,20879,
   22121,23436,24830,26306
 };
-uint16_t mapMidi(uint16_t input) {
+
+static uint16_t mapMidi(uint16_t input) {
   return pgm_read_word(&midiTable[(1023-input) >> 3]);
 }
 
@@ -124,13 +123,13 @@ static const uint16_t pentatonicTable[54] PROGMEM = {
   3691,4143,4927,5530,6577,7382,8286,9854,11060,13153,14764,16572,19708,22121,26306
 };
 
-uint16_t mapPentatonic(uint16_t input) {
+static uint16_t mapPentatonic(uint16_t input) {
   uint8_t value = (1023-input) / (1024/53);
   return pgm_read_word(&pentatonicTable[value]);
 }
 
 
-void audioOn() {
+static void audioOn() {
 #if defined(__AVR_ATmega8__)
   // ATmega8 has different registers
   TCCR2 = _BV(WGM20) | _BV(COM21) | _BV(CS20);
