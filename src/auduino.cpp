@@ -124,7 +124,7 @@ static const uint16_t pentatonicTable[54] PROGMEM = {
 };
 
 static uint16_t mapPentatonic(uint16_t input) {
-  uint8_t value = (1023-input) / (1024/53);
+  uint8_t value = (1023-input) * 53 >> 10; // ~= / (53/1024)
   return pgm_read_word(&pentatonicTable[value]);
 }
 
