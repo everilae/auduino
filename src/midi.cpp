@@ -6,6 +6,7 @@
 // 12 Oct 2012: System Common and Real time made optional
 
 #include <Arduino.h>
+#include <avr/pgmspace.h>
 #include "midi.h"
 #include "debug.h"
 
@@ -42,7 +43,7 @@ inline constexpr uint8_t channelFromStatus(uint8_t status) {
 }
 
 void _Midi::begin(int8_t channel_) {
-	DEBUG_WRITE("_Midi::begin(channel = %d)\n", channel_);
+	DEBUG_WRITE_P(PSTR("_Midi::begin(channel = %d)\n"), channel_);
 	serial.begin(baudRate);
 	channel = channel_;
 	dataBufferPosition = 0;

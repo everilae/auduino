@@ -18,9 +18,11 @@
 # ifdef DEBUG
 extern void setup_debug();
 #  define DEBUG_WRITE(fmt, ...) fprintf(stderr, fmt, ##__VA_ARGS__)
+#  define DEBUG_WRITE_P(fmt, ...) fprintf_P(stderr, fmt, ##__VA_ARGS__)
 #  define SETUP_DEBUG() setup_debug()
 # else
 #  define DEBUG_WRITE(...) /* __VA_ARGS__ */
+#  define DEBUG_WRITE_P(...) /* __VA_ARGS__ */
 #  define SETUP_DEBUG() /* setup_debug() */
 # endif
 
