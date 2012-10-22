@@ -42,8 +42,13 @@ inline constexpr uint8_t channelFromStatus(uint8_t status) {
 	return (status & 0x0F) + 1;
 }
 
+// Work around buggy avr-libc PSTR
+#ifdef DEBUG
+static const char beginFmtStr[] PROGMEM = "_Midi::begin(channel = %d)\n";
+#endif
+
 void _Midi::begin(int8_t channel_) {
-	DEBUG_WRITE_P(PSTR("_Midi::begin(channel = %d)\n"), channel_);
+	DEBUG_WRITE_P(beginFmtStr, channel_);
 	serial.begin(baudRate);
 	channel = channel_;
 	dataBufferPosition = 0;
