@@ -50,7 +50,7 @@ static inline int16_t mulsu(const int8_t a, const uint8_t b) {
 		"movw %0, __tmp_reg__\n\t"
 		"clr __zero_reg__\n\t"
 		: "=&r" (product)
-		: "r" (a), "r" (b));
+		: "a" (a), "a" (b));
 	return product;
 }
 #else
