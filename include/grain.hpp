@@ -43,6 +43,16 @@ static inline uint16_t mul(const uint8_t a, const uint8_t b) {
 		: "r" (a), "r" (b)); // so that a and b stay safe
 	return product;
 }
+
+static inline int16_t mulsu(const int8_t a, const uint8_t b) {
+	int16_t product;
+	asm(	"mulsu %1, %2\n\t"
+		"movw %0, __tmp_reg__\n\t"
+		"clr __zero_reg__\n\t"
+		: "=&r" (product)
+		: "r" (a), "r" (b));
+	return product;
+}
 #else
 constexpr uint16_t mul(const uint8_t a, const uint8_t b) {
 	return a * b;

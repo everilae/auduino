@@ -208,8 +208,6 @@ ISR(PWM_INTERRUPT)
   uint16_t output;
   output =  grains[0].getSample();
   output += grains[1].getSample();
-  // Scale output to the available range
-  output >>= 8;
 
   // Make the grain amplitudes decay by a factor every sample (exponential decay)
   grains[0].env.tick();
@@ -218,14 +216,20 @@ ISR(PWM_INTERRUPT)
   // It's ok to leave the PWM to what ever value it is when gate closes,
   // since HPF should remove DC voltages.
   if (currentNote.gate == Note::OPEN) {
+    // Scale and shift output to the available signed range for amplitude calculations
+    int8_t scaled_output = (output >> 8) - 128;
+
     // Output to PWM (this is faster than using analogWrite)
-    // 2 * 127 * 255 + 2 * 255 = 65280, well within unsigned 16bit limits
+    // 2 * 127 * 255  + 2 * 255  = 65280,  well within unsigned 16bit limits
+    // 2 * 127 * -128 + 2 * -128 = -32768, ok
+    // 2 * 127 * 127  + 2 * 127  = 32512,  ok
     // value = output * (velocity + 1) / (127 + 1)
     //       = output * (velocity + 1) * 2 / ((127 + 1) * 2)
     //       = output * (2 * velocity + 2) / 256
     //       = (2 * velocity * output + 2 * output) / 256
     //
     // mul() from grain.h, grain.hpp
-    PWM_VALUE = ((mul(currentNote.velocity, output) << 1) + (output << 1)) >> 8;
+    int16_t scaled_output_x2 = mulsu(scaled_output, 2);
+    PWM_VALUE = ((scaled_output_x2 * currentNote.velocity + scaled_output_x2) >> 8) + 128;
   }
 }
