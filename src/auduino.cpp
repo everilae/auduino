@@ -230,6 +230,7 @@ ISR(PWM_INTERRUPT)
     //
     // mul() from grain.h, grain.hpp
     int16_t scaled_output_x2 = mulsu(scaled_output, 2);
-    PWM_VALUE = ((scaled_output_x2 * currentNote.velocity + scaled_output_x2) >> 8) + 128;
+    scaled_output_x2 += scaled_output_x2 * currentNote.velocity;
+    PWM_VALUE = static_cast<uint8_t>(scaled_output_x2 >> 8) + 128;
   }
 }
