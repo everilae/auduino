@@ -27,15 +27,14 @@ static inline bool __clr_zero_reg() {
 #define CLR_ZERO_REG_BLOCK() \
 	for (bool tmp = true; tmp; tmp = __clr_zero_reg())
 
-#define mac(acc, x, y) \
-	do { \
-		asm volatile ( \
-			"mul %1, %2\n\t" \
-			"add %A0, r0\n\t" \
-			"adc %B0, r1\n\t" \
-			: "=&r" (acc) \
-			: "r" (static_cast<uint8_t>(x)), "r" (static_cast<uint8_t>(y))); \
-	} while (0)
+static inline void mac(uint16_t &acc, const uint8_t x, const uint8_t y) {
+	asm volatile (
+		"mul %1, %2\n\t"
+		"add %A0, r0\n\t"
+		"adc %B0, r1\n\t"
+		: "=&r" (acc)
+		: "r" (x), "r" (y));
+}
 
 static inline uint16_t mul(const uint8_t a, const uint8_t b) {
 	uint16_t product;
@@ -62,7 +61,7 @@ static inline int16_t mulsu(const int8_t a, const uint8_t b) {
 #define CLR_ZERO_REG_BLOCK() \
 	for (bool tmp = true; tmp; tmp = false)
 
-inline void mac(uint16_t &acc, const uint8_t x, const uint8_t y) {
+static inline void mac(uint16_t &acc, const uint8_t x, const uint8_t y) {
 	acc += x * y;
 }
 
