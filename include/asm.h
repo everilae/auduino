@@ -18,16 +18,24 @@
  *	mac(acc, 3, 4);
  * }
  */
-#define CLR_ZERO_REG_BLOCK() \
-	for (bool tmp = true; tmp; asm volatile ("clr __zero_reg__\n\t"), tmp = false)
 
-static inline void mac(register uint16_t acc, const uint8_t x, const uint8_t y) {
-	asm (	"mul %1, %2\n\t"
-		"add %A0, r0\n\t"
-		"adc %B0, r1\n\t"
-		: "=r" (acc)
-		: "r" (x), "r" (y));
+static inline bool __clr_zero_reg() {
+	asm volatile ("clr __zero_reg__\n\t");
+	return false;
 }
+
+#define CLR_ZERO_REG_BLOCK() \
+	for (bool tmp = true; tmp; tmp = __clr_zero_reg())
+
+#define mac(acc, x, y) \
+	do { \
+		asm volatile ( \
+			"mul %1, %2\n\t" \
+			"add %A0, r0\n\t" \
+			"adc %B0, r1\n\t" \
+			: "=&r" (acc) \
+			: "r" (x), "r" (y)); \
+	} while (0)
 
 static inline uint16_t mul(const uint8_t a, const uint8_t b) {
 	uint16_t product;
