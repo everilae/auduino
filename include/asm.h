@@ -34,7 +34,7 @@ static inline bool __clr_zero_reg() {
 			"add %A0, r0\n\t" \
 			"adc %B0, r1\n\t" \
 			: "=&r" (acc) \
-			: "r" (x), "r" (y)); \
+			: "r" (static_cast<uint8_t>(x)), "r" (static_cast<uint8_t>(y))); \
 	} while (0)
 
 static inline uint16_t mul(const uint8_t a, const uint8_t b) {
