@@ -7,6 +7,7 @@
 // 18 Oct 2012: Attempt at optimizing 8bit multiplications
 
 #include <avr/pgmspace.h>
+#include "asm.h"
 
 // Sine!
 //
@@ -32,32 +33,6 @@ static const uint8_t sine_lookup[256] PROGMEM = {
 	37,  40,  42,  44,  47,  49,  52,  54,  57,  59,  62,  65,  67,  70,  73,  76,
 	79,  82,  85,  88,  90,  93,  97,  100, 103, 106, 109, 112, 115, 118, 121, 124
 };
-
-#if __AVR_HAVE_MUL__ && __AVR_HAVE_MOVW__
-static inline uint16_t mul(const uint8_t a, const uint8_t b) {
-	uint16_t product;
-	asm(	"mul %1, %2\n\t"
-		"movw %0, __tmp_reg__\n\t"
-		"clr __zero_reg__\n\t"
-		: "=&r" (product)    // Force different register with '&'
-		: "r" (a), "r" (b)); // so that a and b stay safe
-	return product;
-}
-
-static inline int16_t mulsu(const int8_t a, const uint8_t b) {
-	int16_t product;
-	asm(	"mulsu %1, %2\n\t"
-		"movw %0, __tmp_reg__\n\t"
-		"clr __zero_reg__\n\t"
-		: "=&r" (product)
-		: "a" (a), "a" (b));
-	return product;
-}
-#else
-constexpr uint16_t mul(const uint8_t a, const uint8_t b) {
-	return a * b;
-}
-#endif
 
 inline void Env::tick() {
   // Make the grain amplitude decay by a factor every sample (exponential decay)

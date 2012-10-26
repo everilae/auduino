@@ -27,6 +27,7 @@
 #include "phase.h"
 #include "grain.h"
 #include "midi.h"
+#include "asm.h"
 #include "debug.h"
 
 static Phase syncPhase;
