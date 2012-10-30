@@ -136,8 +136,7 @@ static const uint8_t bytes_to_read_lookup[23] PROGMEM = {
 	// Channel Voice Messages
 	2, 2, 2, 2, 1, 1, 2,
 	// System Common Messages
-	// Default to 3 bytes with System Exclusive (could be 1)
-	3, 1, 2, 1, 0, 0, 0, 0,
+	1, 1, 2, 1, 0, 0, 0, 0,
 	// System Real-Time Messages
 	0, 0, 0, 0, 0, 0, 0, 0,
 };

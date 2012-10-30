@@ -30,16 +30,22 @@
 #include "asm.h"
 #include "debug.h"
 
-static Phase syncPhase;
-static Grain grains[2];
-static struct Note {
+struct Note {
   enum Gate {
     CLOSED,
     OPEN,
   } gate;
+
   uint8_t number;
   uint8_t velocity;
-} currentNote;
+};
+
+static struct Voice {
+  Note note;
+  Env env;
+  Phase sync[2];
+  Grain grains[2];
+} voices[2];
 
 // Map Analogue channels
 #define SYNC_CONTROL         (4)
@@ -159,14 +165,27 @@ void setup() {
   Midi.handlers.noteOn = [] (MidiMessage &message) {
     // no bounds checking, midi should not produce
     // note values higher than 127
-    currentNote.number = message.data[0];
-    currentNote.velocity = message.data[1];
-    currentNote.gate = Note::OPEN;
-    syncPhase.inc = pgm_read_word(&midiTable[currentNote.number]);
+    uint8_t number = message.data[0];
+    uint8_t velocity = message.data[1];
+
+    if (velocity) {
+      voices[0].note.number = number;
+      voices[0].note.velocity = velocity;
+      voices[0].note.gate = Note::OPEN;
+
+      voices[0].env.amp = velocity << 8;
+      voices[0].env.decay = 1;
+      voices[0].env.divider = 4;
+
+      voices[0].sync[0].inc = pgm_read_word(&midiTable[voices[0].note.number - 24]);
+      voices[0].sync[1].inc = pgm_read_word(&midiTable[voices[0].note.number - 17]);
+    } else if (voices[0].note.number == number) {
+      voices[0].note.gate = Note::CLOSED;
+    }
   };
   Midi.handlers.noteOff = [] (MidiMessage &message) {
-    if (currentNote.number == message.data[0]) {
-      currentNote.gate = Note::CLOSED;
+    if (voices[0].note.number == message.data[0]) {
+      voices[0].note.gate = Note::CLOSED;
     }
   };
   Midi.handlers.controlChange = [] (MidiMessage &message) {
@@ -174,11 +193,19 @@ void setup() {
     uint8_t value = message.data[1];
 
     switch (controller) {
-      case 20: grains[0].phase.inc = pgm_read_word(&midiTable[value]); break;
-      case 21: grains[0].env.decay = value << 1; break;
-      case 22: grains[1].phase.inc = pgm_read_word(&midiTable[value]); break;
-      case 23: grains[1].env.decay = value; break;
+      case 1:
+        // mod wheel
+        voices[0].grains[0].env.decay = value >> 3;
+        voices[0].grains[1].env.decay = value >> 4;
+        break;
+      case 16: voices[0].grains[0].phase.inc = pgm_read_word(&midiTable[value]); break;
+      //case 21: grains[0].env.decay = value << 1; break;
+      case 17: voices[0].grains[1].phase.inc = pgm_read_word(&midiTable[value]); break;
+      //case 23: grains[1].env.decay = value; break;
     }
+  };
+  Midi.handlers.pitchWheelChange = [] (MidiMessage &message) {
+    voices[0].sync[0].adj = voices[0].sync[1].adj = message.data[1] - 64;
   };
 }
 
@@ -205,44 +232,51 @@ void loop() {
 
 ISR(PWM_INTERRUPT)
 {
-  ++syncPhase;
-  if (syncPhase.hasOverflowed()) {
+  ++voices[0].sync[0];
+  ++voices[0].sync[1];
+
+  if (voices[0].sync[0].hasOverflowed()) {
     // Time to start the next grain
-    grains[0].reset();
-    grains[1].reset();
+    voices[0].grains[0].reset();
     LED_PORT ^= 1 << LED_BIT; // Faster than using digitalWrite
+  }
+
+  if (voices[0].sync[1].hasOverflowed()) {
+    voices[0].grains[1].reset();
   }
  
   // Increment the phase of the grain oscillators
-  ++grains[0].phase;
-  ++grains[1].phase;
+  ++voices[0].grains[0].phase;
+  ++voices[0].grains[1].phase;
 
   uint16_t output;
-  output =  grains[0].getSample();
-  output += grains[1].getSample();
+  output =  voices[0].grains[0].getSample();
+  output += voices[0].grains[1].getSample();
 
   // Make the grain amplitudes decay by a factor every sample (exponential decay)
-  grains[0].env.tick();
-  grains[1].env.tick();
+  voices[0].grains[0].env.tick();
+  voices[0].grains[1].env.tick();
 
   // It's ok to leave the PWM to what ever value it is when gate closes,
   // since HPF should remove DC voltages.
-  if (currentNote.gate == Note::OPEN) {
-    // Scale and shift output to the available signed range for amplitude calculations
-    int8_t scaled_output = static_cast<uint8_t>(output >> 7) - 128;
-
-    // Output to PWM (this is faster than using analogWrite)
-    // 2 * 127 * 255  + 2 * 255  = 65280,  well within unsigned 16bit limits
-    // 2 * 127 * -128 + 2 * -128 = -32768, ok
-    // 2 * 127 * 127  + 2 * 127  = 32512,  ok
-    // value = output * (velocity + 1) / (127 + 1)
-    //       = output * (velocity + 1) * 2 / ((127 + 1) * 2)
-    //       = output * (2 * velocity + 2) / 256
-    //       = (2 * velocity * output + 2 * output) / 256
-    //
-    // mul() from grain.h, grain.hpp
-    int16_t scaled_output_x2 = mulsu(scaled_output, 2);
-    scaled_output_x2 += scaled_output_x2 * currentNote.velocity;
-    PWM_VALUE = static_cast<uint8_t>(scaled_output_x2 >> 8) + 128;
+  if (voices[0].note.gate == Note::CLOSED) {
+    voices[0].env.tick();
   }
+
+  // Scale and shift output to the available signed range for amplitude calculations
+  int8_t scaled_output = static_cast<uint8_t>(output >> 7) - 128;
+
+  // Output to PWM (this is faster than using analogWrite)
+  // 2 * 127 * 255  + 2 * 255  = 65280,  well within unsigned 16bit limits
+  // 2 * 127 * -128 + 2 * -128 = -32768, ok
+  // 2 * 127 * 127  + 2 * 127  = 32512,  ok
+  // value = output * (velocity + 1) / (127 + 1)
+  //       = output * (velocity + 1) * 2 / ((127 + 1) * 2)
+  //       = output * (2 * velocity + 2) / 256
+  //       = (2 * velocity * output + 2 * output) / 256
+  //
+  // mul() from grain.h, grain.hpp
+  int16_t scaled_output_x2 = mulsu(scaled_output, 2);
+  scaled_output_x2 += scaled_output_x2 * voices[0].env.value();
+  PWM_VALUE = static_cast<uint8_t>(scaled_output_x2 >> 8) + 128;
 }

@@ -14,6 +14,7 @@
 struct Env {
   uint16_t amp;
   uint8_t decay;
+  uint8_t divider;
 
   void tick();
   uint8_t value() const;

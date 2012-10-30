@@ -96,7 +96,7 @@ SIMARGS		= --device $(SIMMCU) \
 		--writetopipe $(SIMWPIPE) \
 		--readfrompipe $(SIMRPIPE)
 
-ISPPORT		= /dev/ttyUSB0
+ISPPORT		= /dev/ttyACM0
 ISPBAUDRATE	= 115200
 ISPARGS		= -P $(ISPPORT) \
 		-b $(ISPBAUDRATE) \

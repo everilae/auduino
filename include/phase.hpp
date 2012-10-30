@@ -7,7 +7,7 @@
 
 inline Phase& Phase::operator++() {
   // Increment the phase
-  acc += inc;
+  acc += inc + adj;
   return *this;
 }
 

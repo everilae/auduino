@@ -36,7 +36,17 @@ static const uint8_t sine_lookup[256] PROGMEM = {
 
 inline void Env::tick() {
   // Make the grain amplitude decay by a factor every sample (exponential decay)
-  amp -= mul(value(), decay);
+  uint16_t tmp = mul(value(), decay);
+
+  if (divider) {
+    tmp >>= divider;
+  }
+
+  if (tmp) {
+    amp -= tmp;
+  } else if (divider) {
+    amp = 0;
+  }
 }
 
 inline uint8_t Env::value() const {
@@ -53,6 +63,7 @@ inline void Grain::reset() {
 }
 
 inline uint16_t Grain::getSample() const {
+  //return mul(pgm_read_byte(&sine_lookup[phase.acc >> 8]), env.value());
   // Convert phase into a triangle wave
   uint8_t value = phase.acc >> 7;
   if (phase.acc & 0x8000) value = ~value;

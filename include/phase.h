@@ -13,6 +13,7 @@
 struct Phase {
   uint16_t acc;
   uint16_t inc;
+  int16_t adj;
 
   Phase& operator++();
   bool hasOverflowed() const;
