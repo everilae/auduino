@@ -59,17 +59,17 @@ static inline int16_t mulsu(const int8_t a, const uint8_t b) {
 #else
 
 #define CLR_ZERO_REG_BLOCK() \
-	for (bool tmp = true; tmp; tmp = false)
+	if (true)
 
 static inline void mac(uint16_t &acc, const uint8_t x, const uint8_t y) {
 	acc += x * y;
 }
 
-constexpr uint16_t mul(const uint8_t a, const uint8_t b) {
+inline constexpr uint16_t mul(const uint8_t a, const uint8_t b) {
 	return a * b;
 }
 
-constexpr int16_t mulsu(const int8_t a, const uint8_t b) {
+inline constexpr int16_t mulsu(const int8_t a, const uint8_t b) {
 	return a * b;
 }
 
