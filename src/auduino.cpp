@@ -169,6 +169,17 @@ void setup() {
       currentNote.gate = Note::CLOSED;
     }
   };
+  Midi.handlers.controlChange = [] (MidiMessage &message) {
+    uint8_t controller = message.data[0];
+    uint8_t value = message.data[1];
+
+    switch (controller) {
+      case 20: grains[0].phase.inc = pgm_read_word(&midiTable[value]); break;
+      case 21: grains[0].env.decay = value << 1; break;
+      case 22: grains[1].phase.inc = pgm_read_word(&midiTable[value]); break;
+      case 23: grains[1].env.decay = value; break;
+    }
+  };
 }
 
 void loop() {
@@ -186,10 +197,10 @@ void loop() {
   // Stepped pentatonic mapping: D, E, G, A, B
   //syncPhase.inc = mapPentatonic(analogRead(SYNC_CONTROL));
 
-  grains[0].phase.inc = mapPhaseInc(analogRead(GRAIN_FREQ_CONTROL)) / 2;
-  grains[0].env.decay = analogRead(GRAIN_DECAY_CONTROL) / 8;
-  grains[1].phase.inc = mapPhaseInc(analogRead(GRAIN2_FREQ_CONTROL)) / 2;
-  grains[1].env.decay = analogRead(GRAIN2_DECAY_CONTROL) / 4;
+  //grains[0].phase.inc = mapPhaseInc(analogRead(GRAIN_FREQ_CONTROL)) / 2;
+  //grains[0].env.decay = analogRead(GRAIN_DECAY_CONTROL) / 8;
+  //grains[1].phase.inc = mapPhaseInc(analogRead(GRAIN2_FREQ_CONTROL)) / 2;
+  //grains[1].env.decay = analogRead(GRAIN2_DECAY_CONTROL) / 4;
 }
 
 ISR(PWM_INTERRUPT)
@@ -218,7 +229,7 @@ ISR(PWM_INTERRUPT)
   // since HPF should remove DC voltages.
   if (currentNote.gate == Note::OPEN) {
     // Scale and shift output to the available signed range for amplitude calculations
-    int8_t scaled_output = (output >> 8) - 128;
+    int8_t scaled_output = static_cast<uint8_t>(output >> 7) - 128;
 
     // Output to PWM (this is faster than using analogWrite)
     // 2 * 127 * 255  + 2 * 255  = 65280,  well within unsigned 16bit limits
