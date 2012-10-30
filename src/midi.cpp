@@ -132,13 +132,31 @@ void _Midi::messageHandler(uint8_t status) {
 	}
 }
 
+static const uint8_t bytes_to_read_lookup[23] PROGMEM = {
+	// Channel Voice Messages
+	2, 2, 2, 2, 1, 1, 2,
+	// System Common Messages
+	// Default to 3 bytes with System Exclusive (could be 1)
+	3, 1, 2, 1, 0, 0, 0, 0,
+	// System Real-Time Messages
+	0, 0, 0, 0, 0, 0, 0, 0,
+};
+
 void _Midi::eventHandler(uint8_t data) {
 	if (data & 0x80) {
+		currentMessage = data;
+		bytesToRead = pgm_read_byte(&bytes_to_read_lookup[denseIndexFromStatus(data)]);
+	} else if (dataBufferPosition < dataBufferSize) {
+		// store data
+		dataBuffer[dataBufferPosition++] = data;
+		bytesToRead--;
+	}
+
+	// ... until
+	if (bytesToRead == 0) {
+		// ... message buffer full, handle message
 		messageHandler(currentMessage);
 		// Reset data buffer
 		dataBufferPosition = 0;
-		currentMessage = data;
-	} else if (dataBufferPosition < dataBufferSize) {
-		dataBuffer[dataBufferPosition++] = data;
 	}
 }

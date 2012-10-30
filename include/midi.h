@@ -27,11 +27,12 @@
 #endif
 
 class _Midi {
-	static const unsigned int baudRate = 31250;
+	static const unsigned int baudRate = 38400;
 	static const size_t dataBufferSize = 3;
 
 	uint8_t channel;
 	uint8_t currentMessage;
+	uint8_t bytesToRead;
 	uint8_t dataBuffer[dataBufferSize];
 	size_t dataBufferPosition;
 
