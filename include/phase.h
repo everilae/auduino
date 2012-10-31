@@ -13,11 +13,13 @@
 struct Phase {
   uint16_t acc;
   uint16_t inc;
-  int16_t adj;
+  uint16_t modInc;
 
   Phase& operator++();
   bool hasOverflowed() const;
   void reset();
+  void setInc(uint16_t value);
+  void modulate(uint16_t mod);
 };
 
 #include "phase.hpp"

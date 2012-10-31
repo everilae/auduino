@@ -177,8 +177,8 @@ void setup() {
       voices[0].env.decay = 1;
       voices[0].env.divider = 4;
 
-      voices[0].sync[0].inc = pgm_read_word(&midiTable[voices[0].note.number - 24]);
-      voices[0].sync[1].inc = pgm_read_word(&midiTable[voices[0].note.number - 17]);
+      voices[0].sync[0].setInc(pgm_read_word(&midiTable[voices[0].note.number - 24]));
+      voices[0].sync[1].setInc(pgm_read_word(&midiTable[voices[0].note.number - 17]));
     } else if (voices[0].note.number == number) {
       voices[0].note.gate = Note::CLOSED;
     }
@@ -198,14 +198,17 @@ void setup() {
         voices[0].grains[0].env.decay = value >> 3;
         voices[0].grains[1].env.decay = value >> 4;
         break;
-      case 16: voices[0].grains[0].phase.inc = pgm_read_word(&midiTable[value]); break;
+      case 16: voices[0].grains[0].phase.setInc(pgm_read_word(&midiTable[value])); break;
       //case 21: grains[0].env.decay = value << 1; break;
-      case 17: voices[0].grains[1].phase.inc = pgm_read_word(&midiTable[value]); break;
+      case 17: voices[0].grains[1].phase.setInc(pgm_read_word(&midiTable[value])); break;
       //case 23: grains[1].env.decay = value; break;
     }
   };
   Midi.handlers.pitchWheelChange = [] (MidiMessage &message) {
-    voices[0].sync[0].adj = voices[0].sync[1].adj = message.data[1] - 64;
+    // 14bit
+    uint16_t value = message.data[1] << 7 | message.data[0];
+    voices[0].sync[0].modulate(value);
+    voices[0].sync[1].modulate(value);
   };
 }
 
